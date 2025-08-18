@@ -31,24 +31,26 @@ local function resolve_group(group, hl, scheme, palette)
         return palette[id]
     end
 
-    local current_group = vim.api.nvim_get_hl(0, { name = group })
+    local current_hl = vim.api.nvim_get_hl(0, { name = group })
 
-    if current_group.link then
-        return resolve_group(current_group.link, hl, scheme, palette)
+    if current_hl.link then
+        return resolve_group(current_hl.link, hl, scheme, palette)
     end
 
-    if current_group.bg then
-        current_group.bg = string.format("#%06x", current_group.bg)
+    if current_hl.bg then
+        current_hl.bg = string.format("#%06x", current_hl.bg)
     end
 
-    if current_group.fg then
-        current_group.fg = string.format("#%06x", current_group.fg)
+    if current_hl.fg then
+        current_hl.fg = string.format("#%06x", current_hl.fg)
     end
 
-    return vim.tbl_deep_extend("force", current_group, {
+    local resolved_hl = vim.tbl_deep_extend("force", hl, {
         fg = resolve_attr(hl.fg),
         bg = resolve_attr(hl.bg),
     })
+
+    return vim.tbl_deep_extend("force", current_hl, resolved_hl)
 end
 
 local apply_customizations = function(scheme, highlights)
@@ -72,29 +74,33 @@ end
 M.setup = function(opts)
     vim.api.nvim_create_augroup('CustomHighlights', { clear = true })
 
-    vim.api.nvim_create_autocmd('ColorScheme', {
-        group    = 'CustomHighlights',
-        pattern  = "*",
-        desc     = "Apply links, and potential customizations",
-        callback = function()
-            apply_links(opts.links)
+    local autocmd_callback = function()
+        apply_links(opts.links)
 
-            local current_colorscheme = vim.g.colors_name
+        local current_colorscheme = vim.g.colors_name
 
-            if not current_colorscheme then return end
+        if not current_colorscheme then return end
 
-            for name, c in pairs(colorschemes) do
-                if string.match(current_colorscheme, c.pattern) then
-                    local highlights = opts.customizations[name]
+        for name, c in pairs(colorschemes) do
+            if string.match(current_colorscheme, c.pattern) then
+                local highlights = opts.customizations[name]
 
-                    if highlights then
-                        apply_customizations(name, highlights)
-                        break
-                    end
+                if highlights then
+                    apply_customizations(name, highlights)
+                    break
                 end
             end
         end
+    end
+
+    vim.api.nvim_create_autocmd('ColorScheme', {
+        group    = 'CustomHighlights',
+        pattern  = "*",
+        desc     = "Apply links and customizations.",
+        callback = autocmd_callback
     })
+
+    autocmd_callback()
 end
 
 return M
