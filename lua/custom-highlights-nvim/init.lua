@@ -1,5 +1,10 @@
 local M = {}
 
+M.config = {
+    customizations = {},
+    links          = {}
+}
+
 local colorschemes = {
     catppuccin = {
         pattern = "catppuccin*",
@@ -14,6 +19,18 @@ local colorschemes = {
         end
     }
 }
+
+local function deep_merge(t1, t2)
+    for k, v in pairs(t2) do
+        if type(v) == 'table' and type(t1[k]) == 'table' then
+            deep_merge(t1[k], v)
+        else
+            t1[k] = v
+        end
+    end
+
+    return t1
+end
 
 local function resolve_group(group, hl, scheme, palette)
     local resolve_attr = function(id)
@@ -71,36 +88,29 @@ local apply_links = function(links)
     end
 end
 
-M.setup = function(opts)
-    vim.api.nvim_create_augroup('CustomHighlights', { clear = true })
+M.apply_highlights = function()
+    apply_links(M.config.links)
 
-    local autocmd_callback = function()
-        apply_links(opts.links)
+    local current_colorscheme = vim.g.colors_name
 
-        local current_colorscheme = vim.g.colors_name
+    if not current_colorscheme then return end
 
-        if not current_colorscheme then return end
+    for name, c in pairs(colorschemes) do
+        if string.match(current_colorscheme, c.pattern) then
+            local highlights = M.config.customizations[name]
 
-        for name, c in pairs(colorschemes) do
-            if string.match(current_colorscheme, c.pattern) then
-                local highlights = opts.customizations[name]
-
-                if highlights then
-                    apply_customizations(name, highlights)
-                    break
-                end
+            if highlights then
+                apply_customizations(name, highlights)
+                break
             end
         end
     end
+end
 
-    vim.api.nvim_create_autocmd('ColorScheme', {
-        group    = 'CustomHighlights',
-        pattern  = "*",
-        desc     = "Apply links and customizations.",
-        callback = autocmd_callback
-    })
+M.add = function(opts)
+    if not opts then return end
 
-    autocmd_callback()
+    M.config = deep_merge(M.config, opts)
 end
 
 return M
