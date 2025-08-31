@@ -73,9 +73,7 @@ end
 local apply_customizations = function(scheme, highlights)
     local palette = colorschemes[scheme].palette()
 
-    for _, h in ipairs(highlights) do
-        local group = h[1]
-        local hl = h[2]
+    for group, hl in pairs(highlights) do
         local new_hl = resolve_group(group, hl, scheme, palette)
 
         vim.api.nvim_set_hl(0, group, new_hl)
@@ -83,8 +81,8 @@ local apply_customizations = function(scheme, highlights)
 end
 
 local apply_links = function(links)
-    for _, l in ipairs(links) do
-        vim.api.nvim_set_hl(0, l.src, { link = l.dst })
+    for src, dst in pairs(links) do
+        vim.api.nvim_set_hl(0, src, { link = dst })
     end
 end
 
