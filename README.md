@@ -22,8 +22,8 @@ Linking highlight groups is done by setting the `links` field in `opts`.
 ```lua
 opts = {
     links = {
-        { src = "NormalFloat", dst = "Normal" },
-        { src = "FloatBorder", dst = "Title" },
+        NormalFloat = "Normal",
+        FloatBorder = "Title",
     }
 }
 ```
@@ -37,7 +37,7 @@ opts = {
     customizations = {
         catppuccin = {
             -- All fields (fg, bg, italic) are optional, omitting one will leave it unchanged
-            { 'WinSeparator', { fg = 'crust', bg = 'surface0', italic = false }}
+            WinSeparator, { fg = 'crust', bg = 'surface0', italic = false }
         }
     }
 }
