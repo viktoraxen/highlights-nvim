@@ -109,6 +109,8 @@ M.add = function(opts)
     if not opts then return end
 
     M.config = deep_merge(M.config, opts)
+
+    M.apply_highlights()
 end
 
 return M
