@@ -4,5 +4,5 @@ vim.api.nvim_create_autocmd('ColorScheme', {
     group    = 'CustomHighlights',
     pattern  = "*",
     desc     = "Apply links and customizations.",
-    callback = require('custom-highlights-nvim').apply_highlights
+    callback = require('highlights-nvim').apply_highlights
 })

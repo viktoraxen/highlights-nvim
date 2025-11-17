@@ -2,13 +2,13 @@
 
 Easy configuration for highlight groups in Neovim. Allows for globally linking highlight groups to other highlight groups, and manually setting colors from each colorschemes palette separately.
 
-## Install 
+## Install
 
 ### Lazy
 
 ```lua
 return {
-    "viktoraxen/custom-highlights-nvim",
+    "viktoraxen/highlights-nvim",
     opts = { ... }
 }
 ```
