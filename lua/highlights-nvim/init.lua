@@ -35,9 +35,19 @@ local function deep_merge(t1, t2)
 end
 
 local function resolve_color(group, hl, palette)
-    local resolve_attr = function(id)
+    local function resolve_attr(id)
         if id and string.match(id, "^#") then
             return id
+        end
+
+        if id and string.find(id, "|", 1, true) then
+            local parts = vim.split(id, "|")
+
+            return utils.blend(
+                resolve_attr(parts[1]),
+                resolve_attr(parts[2]),
+                0.5
+            )
         end
 
         if palette and not palette[id] then

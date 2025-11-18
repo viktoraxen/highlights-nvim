@@ -35,8 +35,7 @@ M.blend = function(what, into, amount)
     local g = math.floor(bg_g + (fg_g - bg_g) * amount)
     local b = math.floor(bg_b + (fg_b - bg_b) * amount)
 
-    -- Combine back to hex
-    return r * 65536 + g * 256 + b
+    return string.format("#%02x%02x%02x", r, g, b)
 end
 
 M.get_hl = function(name)
