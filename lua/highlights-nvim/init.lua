@@ -56,13 +56,8 @@ local function resolve_color(group, hl, palette)
 
     local current_hl = utils.get_hl(group)
 
-    if current_hl.bg then
-        current_hl.bg = string.format("#%06x", current_hl.bg)
-    end
-
-    if current_hl.fg then
-        current_hl.fg = string.format("#%06x", current_hl.fg)
-    end
+    current_hl.bg = current_hl.bg and string.format("#%06x", current_hl.bg)
+    current_hl.fg = current_hl.fg and string.format("#%06x", current_hl.fg)
 
     hl.fg = hl.fg and resolve_attr(hl.fg)
     hl.bg = hl.bg and resolve_attr(hl.bg)
@@ -74,23 +69,18 @@ local function apply_customizations(customizations, colorscheme)
     for group, hl in pairs(customizations) do
         if colorschemes[group] then
             apply_customizations(customizations[group], group)
-            goto continue
+        else
+            local palette = colorscheme and colorschemes[colorscheme].palette() or nil
+
+            local new_hl = resolve_color(group, hl, palette)
+
+            if new_hl then
+                vim.api.nvim_set_hl(0, group, new_hl)
+            else
+                vim.notify(string.format("highlights-nvim: Could not resolve highlight for %q", group),
+                    vim.log.levels.WARN)
+            end
         end
-
-        local palette = colorscheme and colorschemes[colorscheme].palette() or nil
-
-        local new_hl = resolve_color(group, hl, palette)
-
-        -- vim.notify(vim.inspect({ group = group, new_hl = new_hl }), vim.log.levels.DEBUG)
-
-        if not new_hl then
-            vim.notify(string.format("highlights-nvim: Could not resolve highlight for %q", group), vim.log.levels.WARN)
-            goto continue
-        end
-
-        vim.api.nvim_set_hl(0, group, new_hl)
-
-        ::continue::
     end
 end
 
